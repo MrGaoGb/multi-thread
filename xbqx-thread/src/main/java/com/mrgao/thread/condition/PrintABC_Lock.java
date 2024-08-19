@@ -59,7 +59,7 @@ public class PrintABC_Lock {
                 lock.lock();
                 try {
                     while (state % 3 == 2) {// 多线程并发，不能用if，必须用循环测试等待条件，避免虚假唤醒
-                        System.out.print("C:" + state);
+                        System.out.println("C:" + state);
                         state++;
                         i++;
                     }
