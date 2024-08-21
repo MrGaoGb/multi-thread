@@ -20,12 +20,15 @@ public class BreakOrContinueDemo {
                 int sum = i*j;
                 if(sum>50){
                     System.out.println(i+"*"+j+"="+sum);
-//                    break flag;
+                    break flag;
 //                    break;
-                    continue flag;
+//                    continue flag;
                 }
             }
         }
+
+        // 继续向下执行
+        System.out.println("继续向下执行...!");
 
     }
 }
