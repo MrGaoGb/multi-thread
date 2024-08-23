@@ -31,7 +31,6 @@ public class TimerDemo {
             }
         }, 10000, 2000);
 
-
 //        Thread.sleep(10000);
 //        timer.cancel();
 
