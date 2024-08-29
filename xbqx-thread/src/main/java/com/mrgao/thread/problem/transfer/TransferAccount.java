@@ -1,6 +1,9 @@
 package com.mrgao.thread.problem.transfer;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @Description TODO
@@ -17,7 +20,11 @@ public class TransferAccount {
 
     private Object lock;
 
-    public TransferAccount(Object lock, Integer balance ) {
+    public TransferAccount(Integer balance) {
+        this.balance = balance;
+    }
+
+    public TransferAccount(Object lock, Integer balance) {
         this.lock = lock;
         this.balance = balance;
     }
@@ -30,6 +37,7 @@ public class TransferAccount {
      * ====================输出C余额(转账后):200
      * </p>
      * 因此，解决该问题的思路是：需要用同一把锁就可以了
+     *
      * @param target
      * @param transferAmount
      */
@@ -40,8 +48,25 @@ public class TransferAccount {
         }
     }
 
+    /**
+     * synchronized表示锁定的是当前对象, 使用可重入锁
+     *
+     * @param target
+     * @param transferAmount
+     */
+    public void transfer1(TransferAccount target, Integer transferAmount) {
+        synchronized (this) {
+            if (this.balance >= transferAmount) {
+                this.balance -= transferAmount;
+                synchronized (this) {
+                    target.balance += transferAmount;
+                }
+            }
+        }
+    }
+
     public void transfer2(TransferAccount target, Integer transferAmount) {
-        synchronized (lock) {
+        synchronized (this.lock) {
             if (this.balance >= transferAmount) {
                 this.balance -= transferAmount;
                 target.balance += transferAmount;
@@ -51,11 +76,12 @@ public class TransferAccount {
 
     /**
      * 升级版：TransferAccount.class，由JVM保证对象是同一个，唯一一个
+     *
      * @param target
      * @param transferAmount
      */
     public void transferUpgrade(TransferAccount target, Integer transferAmount) {
-        synchronized (TransferAccount.class){
+        synchronized (TransferAccount.class) {
             if (this.balance >= transferAmount) {
                 this.balance -= transferAmount;
                 target.balance += transferAmount;
