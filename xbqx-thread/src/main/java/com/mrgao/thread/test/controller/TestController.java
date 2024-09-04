@@ -1,4 +1,4 @@
-package com.mrgao.thread.test;
+package com.mrgao.thread.test.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
