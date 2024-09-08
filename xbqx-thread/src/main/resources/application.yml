@@ -6,3 +6,13 @@ server:
     threads:
       max: 200 # 默认配置 Tomcat能启动用来处理请求的最大线程数，如果请求处理量远远大于最大线程数则可能会僵死。(请求处理线程的数量)
       min-spare: 10 # 默认配置 最小线程工作数
+spring:
+  datasource: # 数据库相关
+    # 使用druid数据源
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://192.168.1.219:5432/postgres
+    username: openpay
+    password: openpay123
+    # 连接池大小根据实际情况调整
+    max-active: 10
+    max-pool-prepared-statement-per-connection-size: 10

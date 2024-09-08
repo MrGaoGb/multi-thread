@@ -4,6 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,7 @@ public class AsyncProcessService {
      * @param phoneNum
      */
     @Async // 开启异步
+    @Transactional(rollbackFor = Exception.class)
     public void sendSmsCode(String phoneNum) {
         log.info("线程:{},为手机号:{} 发送短信 Begin!", Thread.currentThread().getName(), phoneNum);
         try {

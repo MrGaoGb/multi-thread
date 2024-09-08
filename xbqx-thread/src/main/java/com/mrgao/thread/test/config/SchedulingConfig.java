@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @apiNote:
  * @date 2024/9/5 16:48
  */
-@EnableScheduling
-@Configuration
+//@EnableScheduling
+//@Configuration
 public class SchedulingConfig {
 }
