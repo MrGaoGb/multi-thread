@@ -7,6 +7,8 @@ server:
       max: 200 # 默认配置 Tomcat能启动用来处理请求的最大线程数，如果请求处理量远远大于最大线程数则可能会僵死。(请求处理线程的数量)
       min-spare: 10 # 默认配置 最小线程工作数
 spring:
+  main:
+    allow-circular-references: true # spring循环依赖默认是禁止的
   datasource: # 数据库相关
     # 使用druid数据源
     driver-class-name: org.postgresql.Driver
