@@ -12,6 +12,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserEnhanceService {
 
+    /**
+     * =========可用于测试不存在循环依赖的Bean Begin=====
+     */
+    //@Autowired
+    //private UserService userService;
+    //
+    //@Transactional
+    //public void enhanceUser() {
+    //    System.out.println("增强用户...!");
+    //}
+    /**
+     * =========可用于测试不存在循环依赖的Bean End=====
+     */
+
+    /**
+     * =========可用于测试存在循环依赖的Bean Begin=====
+     */
     @Autowired
     private AccountEnhanceService accountEnhanceService;
 
@@ -20,4 +37,7 @@ public class UserEnhanceService {
         System.out.println("增强用户...!");
         accountEnhanceService.enhanceAccount();
     }
+    /**
+     * =========可用于测试存在循环依赖的Bean End=====
+     */
 }
