@@ -6,12 +6,12 @@ package com.mrgao.thread.threadlocal;
 public class ThreadLocalDemo {
 
 
-    private static ThreadLocal<String> threadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<String> threadLocal = new ThreadLocal<>();
 
     /**
      * 可用于解决父子线程传值问题
      */
-    private static ThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
+    private static final ThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
 
     public static void main(String[] args) {
 
@@ -23,7 +23,10 @@ public class ThreadLocalDemo {
 
 
         // InheritableThreadLocal用于解决父子线程传值问题
-        threeView();
+        //threeView();
+
+        // 验证同一线程多次设置值的情况下，是否会存在值覆盖的问题
+        fourView();
     }
 
 
@@ -91,4 +94,19 @@ public class ThreadLocalDemo {
         // 主线程获取值
         System.out.println("主线程获取值:" + inheritableThreadLocal.get());
     }
+
+    /**
+     * 验证同一线程多次设置值的情况下，是否会存在值覆盖的问题
+     * <p>答案是：会存在值覆盖</p>
+     */
+    static void fourView() {
+        // 首次设置值
+        threadLocal.set("first Val");
+        System.out.println(threadLocal.get());
+        // 第二次设置值
+        threadLocal.set("second Val");
+        System.out.println(threadLocal.get());
+
+    }
+
 }
