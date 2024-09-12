@@ -20,7 +20,7 @@ public class ThreadLocalDemo {
     public static void main(String[] args) {
 
         // 初识ThreadLocal,且每个线程单独设置值互不影响
-        // firstView();
+        //firstView();
 
         // ThreadLocal不具有传递性
         //secondView();
@@ -36,7 +36,10 @@ public class ThreadLocalDemo {
         //fiveView();
 
         // 验证直接调用remove方法是否会报错? 答案: 不会。
-        sixView();
+        //sixView();
+
+        // 验证多个线程之间 ThreadLocal是否为同一个？
+        sevenView();
 
     }
 
@@ -48,6 +51,7 @@ public class ThreadLocalDemo {
         // 创建一个线程
         Thread threadA = new Thread(() -> {
             threadLocal.set("threadA:" + Thread.currentThread().getName());
+            System.out.println("线程A的ThreadLocal：" + threadLocal);
             System.out.println("threadA获取本地变量: " + threadLocal.get());
             // 新增删除操作
             threadLocal.remove();
@@ -57,6 +61,7 @@ public class ThreadLocalDemo {
         // 创建第二线程
         Thread threadB = new Thread(() -> {
             threadLocal.set("threadB:" + Thread.currentThread().getName());
+            System.out.println("线程B的ThreadLocal：" + threadLocal);
             System.out.println("threadB获取本地变量: " + threadLocal.get());
             System.out.println("threadB未移除本地变量,重新获取:" + threadLocal.get());
         }, "Tb");
@@ -151,6 +156,28 @@ public class ThreadLocalDemo {
      */
     static void sixView() {
         resources.remove();
+    }
+
+    /**
+     * 验证ThreadLocal是否为同一个
+     */
+    static void sevenView() {
+        // 主线程设置值
+        threadLocal.set("Main:" + Thread.currentThread().getName());
+        System.out.println(threadLocal.get());
+
+        // 创建一个线程
+        Thread threadA = new Thread(() -> {
+            threadLocal.set("threadA:" + Thread.currentThread().getName());
+            System.out.println("线程A的ThreadLocal：" + threadLocal);
+            System.out.println("threadA获取本地变量: " + threadLocal.get());
+            // 新增删除操作
+            threadLocal.remove();
+            System.out.println("threadA移除本地变量后,重新获取:" + threadLocal.get());
+        }, "Ta");
+        // 启动线程
+        threadA.start();
+
     }
 
 }
