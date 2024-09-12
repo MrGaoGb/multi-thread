@@ -1,5 +1,9 @@
 package com.mrgao.thread.threadlocal;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * ThreadLocal：
  */
@@ -25,8 +29,15 @@ public class ThreadLocalDemo {
         // InheritableThreadLocal用于解决父子线程传值问题
         //threeView();
 
-        // 验证同一线程多次设置值的情况下，是否会存在值覆盖的问题
-        fourView();
+        // 验证同一线程多次设置值的情况下，是否会存在值覆盖的问题 答案:会
+        //fourView();
+
+        // 验证TheadLocal创建map 后往集合中设置值，最后再获取当前线程存储的 map值
+        //fiveView();
+
+        // 验证直接调用remove方法是否会报错? 答案: 不会。
+        sixView();
+
     }
 
 
@@ -107,6 +118,39 @@ public class ThreadLocalDemo {
         threadLocal.set("second Val");
         System.out.println(threadLocal.get());
 
+    }
+
+    private static final ThreadLocal<Map<Object, Object>> resources = new ThreadLocal<>();
+
+    /**
+     * 验证TheadLocal创建map 后往集合中设置值，最后再获取当前线程存储的 map值
+     */
+    static void fiveView() {
+        String actualKey = UUID.randomUUID().toString().replaceAll("-", "");
+        System.out.println("用户key：" + actualKey);
+        String value = "Hello ThreadLocal";
+        Map<Object, Object> map = resources.get();
+        // set ThreadLocal Map if none found
+        if (map == null) {
+            System.out.println("map为空,进行new创建map!");
+            map = new HashMap<>(4);
+            resources.set(map);
+        }
+        // 存储新的值 返回旧值
+        Object oldValue = map.put(actualKey, value);
+        System.out.println("第一次打印:" + oldValue);
+        value = "Reset ThreadLocal Val";
+        // 第二次重新设置值
+        oldValue = map.put(actualKey, value);
+        System.out.println("第二次打印:" + oldValue);
+        System.out.println("打印当前线程的值:" + resources.get());
+    }
+
+    /**
+     * 验证直接调用remove方法是否会报错呢?
+     */
+    static void sixView() {
+        resources.remove();
     }
 
 }
