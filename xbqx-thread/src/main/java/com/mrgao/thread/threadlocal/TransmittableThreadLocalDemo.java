@@ -132,7 +132,7 @@ public class TransmittableThreadLocalDemo {
      */
     private static void sleep(long timeout) {
         try {
-            TimeUnit.SECONDS.sleep(2);
+            TimeUnit.SECONDS.sleep(timeout);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
