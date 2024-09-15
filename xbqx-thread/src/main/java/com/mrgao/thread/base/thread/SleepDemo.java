@@ -1,4 +1,4 @@
-package com.mrgao.thread.base;
+package com.mrgao.thread.base.thread;
 
 import com.mrgao.thread.utils.Print;
 
