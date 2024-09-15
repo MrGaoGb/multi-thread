@@ -1,6 +1,9 @@
 package com.mrgao.thread.pool;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Mr.Gao
@@ -22,6 +25,31 @@ public class ThreadPoolExecutorDemo {
         //Executors.newWorkStealingPool();
         //
         //System.out.println(Runtime.getRuntime().availableProcessors());
+
+        /**
+         * 自定义创建线程池
+         * 1、工作队列大小指定为200
+         * 2、使用默认的线程池工厂
+         * 3、拒绝策略使用AbortPolicy，直接抛出异常
+         */
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+                10,
+                20,
+                60,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(200),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy()
+        ) {
+            // TODO 线程执行完毕后的钩子函数
+            @Override
+            protected void afterExecute(Runnable r, Throwable t) {
+                super.afterExecute(r, t);
+                // 可以做一些自己想做的事情，例如：调用threadLocal的remove方法
+                // 清空TheadLocal实例的本地值
+                // threadLocal.remove();
+            }
+        };
 
 
     }

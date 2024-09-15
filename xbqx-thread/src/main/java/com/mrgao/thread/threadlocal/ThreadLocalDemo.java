@@ -3,6 +3,8 @@ package com.mrgao.thread.threadlocal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ThreadLocal：
@@ -17,7 +19,7 @@ public class ThreadLocalDemo {
      */
     private static final ThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         // 初识ThreadLocal,且每个线程单独设置值互不影响
         //firstView();
@@ -39,8 +41,13 @@ public class ThreadLocalDemo {
         //sixView();
 
         // 验证多个线程之间 ThreadLocal是否为同一个？
-        sevenView();
+        //sevenView();
 
+        // 验证ThreadLocal在先调用set方法，然后再调用remove方法，之后再调用set方法，此时验证 ThreadLocal是否为同一个
+        //eightView();
+
+        // 验证在ITL情况下,本身支持父子线程传值的问题，此处主要是验证子线程更新值之后，父线程还是否会得到更新后的值
+        nineView();
     }
 
 
@@ -178,6 +185,59 @@ public class ThreadLocalDemo {
         // 启动线程
         threadA.start();
 
+    }
+
+
+    /**
+     * 验证ThreadLocal在先调用set方法，然后再调用remove方法，之后再调用set方法
+     * 此时验证 ThreadLocal是否为同一个
+     */
+    static void eightView() {
+        // 主线程设置值
+        threadLocal.set("Main:" + Thread.currentThread().getName());
+        System.out.println(threadLocal.get());
+
+        // 调用remove方法
+        threadLocal.remove();
+
+        // 再次调用set方法
+        threadLocal.set("Main: reSet");
+    }
+
+    /**
+     * 验证在ITL情况下,本身支持父子线程传值的问题，此处主要是验证子线程更新值之后，父线程还是否会得到更新后的值
+     * 答案不会
+     */
+    static void nineView() throws Exception {
+        inheritableThreadLocal.set("mainVal");
+        System.out.println("主线程:" + Thread.currentThread().getName() + ",参数值为: " + inheritableThreadLocal.get());
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        // 创建子线程
+        new Thread(() -> {
+            System.out.println("子线程:" + Thread.currentThread().getName() + ",获取父线程传递进来的值:" + inheritableThreadLocal.get());
+            // 子线程重新更新值
+            inheritableThreadLocal.set("subVal");
+            System.out.println("子线程:" + Thread.currentThread().getName() + ",更新后的值为:" + inheritableThreadLocal.get());
+            try {
+                // 模拟其他逻辑执行
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            // 此处表示线程执行完毕
+            countDownLatch.countDown();
+            System.out.println("子线程任务执行完毕...");
+        }, "subThread").start();
+
+        System.out.println("等待子线程执行完毕....");
+        // 等待子线程执行完毕!
+        countDownLatch.await();
+
+        System.out.println("所有子线程均已执行完毕!");
+
+        System.out.println("主线程:" + Thread.currentThread().getName() + ",参数值为: " + inheritableThreadLocal.get());
     }
 
 }
