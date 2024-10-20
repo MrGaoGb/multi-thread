@@ -2,7 +2,7 @@ package com.mrgao.thread.base.thread;
 
 /**
  * @author Mr.Gao
- * @apiNote:
+ * @apiNote: volatile关键字的线程可见性Demo
  * @date 2024/10/20 14:37
  */
 public class ForeverLoopDemo {
