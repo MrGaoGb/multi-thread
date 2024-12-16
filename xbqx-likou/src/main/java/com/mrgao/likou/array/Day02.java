@@ -12,12 +12,13 @@ import java.util.List;
 public class Day02 {
 
     public static void main(String[] args) {
-        //int[] nums = {3, 2, 2, 3};
-        int[] nums = {0, 1, 2, 2, 3, 0, 4, 2};
+        int[] nums = {3, 2, 2, 3};
+//        int[] nums = {0, 1, 2, 2, 3, 0, 4, 2};
         //System.out.println(subArraySum(nums, 3));
-        System.out.println(subArraySumV2(nums, 2));
-        //System.out.println(subArraySumV3(nums, 3));
-        //System.out.println(removeElement(nums, 2));
+//        System.out.println(subArraySumV2(nums, 2));
+//        System.out.println(subArraySumV3(nums, 3));
+//        System.out.println(subArraySumV4(nums, 3));
+        System.out.println(removeElement(nums, 3));
         System.out.println(Arrays.toString(nums));
     }
 
@@ -105,6 +106,35 @@ public class Day02 {
         return count;
     }
 
+
+    public static int subArraySumV4(int[] nums, int val) {
+        int count = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != val) {
+                count++;
+            } else {
+                int tailIndex = nums.length - 1;
+                while (tailIndex > i) {
+                    if (nums[tailIndex] != val) {
+                        int temp = nums[i];
+                        nums[i] = nums[tailIndex];
+                        nums[tailIndex] = temp;
+                        break;
+                    }
+                    tailIndex--;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 官方题解
+     *
+     * @param nums
+     * @param val
+     * @return
+     */
     public static int removeElement(int[] nums, int val) {
         int n = nums.length;
         int left = 0;
