@@ -1,5 +1,7 @@
 package com.mrgao.likou.array;
 
+import lombok.Data;
+
 import java.util.Arrays;
 
 /**
@@ -9,11 +11,32 @@ import java.util.Arrays;
  */
 public class Day04 {
 
+
+    @Data
+    public static class Person {
+        private String name;
+        private int age;
+        private Integer age2;
+        private boolean isPlus;
+        private Boolean isPlus2;
+    }
+
     public static void main(String[] args) {
         int[] nums = {1, 1, 1, 2, 2, 3};
         //int[] nums = {0, 0, 1, 1, 1, 1, 2, 3, 3};
         //System.out.println(removeDuplicates(nums));
         System.out.println(removeDuplicatesV1(nums));
+
+        System.out.println("---------------------------");
+
+        // 验证对象的默认值
+        // TODO 得出结论: 数值型默认值为0，布尔型默认值为false，对象变量型默认值为null
+        Person person = new Person();
+        System.out.println(person.getName());
+        System.out.println(person.getAge());
+        System.out.println(person.getAge2());
+        System.out.println(person.isPlus());
+        System.out.println(person.getIsPlus2());
     }
 
     /**
