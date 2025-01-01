@@ -7,6 +7,11 @@ import java.util.List;
  * @Description 堆内存溢出之OOM
  * @Author Mr.Gao
  * @Date 2024/12/31 0:12
+ *
+ * <p> jvm 参数
+ *     -Xms200m -Xmx200m -XX:+HeapDumpOnOutOfMemoryError
+ *
+ *     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/path/to/dump.hprof
  */
 public class HeapOom {
 
