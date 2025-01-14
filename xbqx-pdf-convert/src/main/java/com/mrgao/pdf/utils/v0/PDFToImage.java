@@ -1,5 +1,6 @@
-package com.mrgao.pdf.utils;
+package com.mrgao.pdf.utils.v0;
 
+import com.mrgao.pdf.utils.MemoryUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
