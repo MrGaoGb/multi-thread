@@ -1,11 +1,10 @@
-package com.mrgao.thread.requestlimit;
+package com.mrgao.limit.algorithm.impl;
 
 
+import com.mrgao.limit.algorithm.TrafficLimiter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * 滑动时间窗口限流

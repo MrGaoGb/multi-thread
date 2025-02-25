@@ -1,4 +1,4 @@
-package com.mrgao.thread.requestlimit;
+package com.mrgao.limit.algorithm;
 
 /**
  * 限流算法

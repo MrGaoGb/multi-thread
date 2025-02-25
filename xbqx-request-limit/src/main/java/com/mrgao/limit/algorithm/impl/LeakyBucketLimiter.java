@@ -1,5 +1,6 @@
-package com.mrgao.thread.requestlimit;
+package com.mrgao.limit.algorithm.impl;
 
+import com.mrgao.limit.algorithm.TrafficLimiter;
 import lombok.extern.slf4j.Slf4j;
 
 /**

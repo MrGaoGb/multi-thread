@@ -1,6 +1,7 @@
-package com.mrgao.thread.requestlimit;
+package com.mrgao.limit.algorithm.impl;
 
 
+import com.mrgao.limit.algorithm.TrafficLimiter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,9 +14,9 @@ public class CounterLimiter implements TrafficLimiter {
 
     private long reqCount = 0; // 请求次数
 
-    private long limitNum = 100;// 每秒限流的最大请求数
+    private long limitNum = 5;// 每秒限流的最大请求数
 
-    private long interval = 1000;// 时间窗口时长 单位ms
+    private long interval = 5 * 1000;// 时间窗口时长 单位ms
 
     /**
      * true 代表限流 false代表通过
