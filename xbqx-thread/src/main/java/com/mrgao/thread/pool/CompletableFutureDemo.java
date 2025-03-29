@@ -43,13 +43,102 @@ public class CompletableFutureDemo {
             // 组合多个Future
             //thenCompose(executorService);
             //thenComposeAsync(executorService);
+            //thenCombine(executorService);
 
-            thenCombine(executorService);
+            // 并行执行多个任务
+            //allOfByMutiTasks(executorService);
+            //anyOfByMutiTasks(executorService);
 
-
+            // 异常处理
+            //exceptionally(executorService);
+            //handler(executorService);
+            whenComplete(executorService);
         } finally {
             executorService.shutdown();
         }
+    }
+
+    private static void whenComplete(ExecutorService executorService) {
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> {
+                    processBizTime(1, "future1");
+                    int num = 10 / 0;
+                    return 10;
+                }, executorService)
+                .whenComplete((res, e) -> {
+                    System.out.println(">>>> whenComplete 执行了");
+                    if (e != null) {
+                        System.out.println("异常信息：" + e.getMessage());
+                    }
+                });
+        future1.thenAccept((res) -> {
+            System.out.println(">>>> thenAccept 执行了, val:" + res);
+        });
+    }
+
+    private static void handler(ExecutorService executorService) {
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> {
+                    processBizTime(1, "future1");
+                    int num = 10 / 0;
+                    return 10;
+                }, executorService)
+                .handle((res, e) -> {
+                    System.out.println(">>>> handle 执行了");
+                    if (e != null) {
+                        System.out.println("异常信息：" + e.getMessage());
+                        return -1;
+                    }
+                    return res;
+                });
+    }
+
+    private static void exceptionally(ExecutorService executorService) {
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> {
+                    processBizTime(1, "future1");
+                    int num = 10 / 0;
+                    return 10;
+                }, executorService)
+                .exceptionally((e) -> {
+                    System.out.println("异常信息：" + e.getMessage());
+                    return -1;
+                });
+    }
+
+    private static void anyOfByMutiTasks(ExecutorService executorService) {
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> {
+            processBizTime(1, "future1");
+            return 10;
+        }, executorService);
+        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> {
+            processBizTime(2, "future2");
+            return 20;
+        }, executorService);
+        CompletableFuture<Integer> future3 = CompletableFuture.supplyAsync(() -> {
+            processBizTime(3, "future3");
+            return 30;
+        }, executorService);
+        CompletableFuture<Object> completableFuture = CompletableFuture.anyOf(future1, future2, future3);
+        completableFuture.thenAccept((res) -> {
+            System.out.println("any Tasks Completed, res:" + res + "<<->>" + LocalDateTime.now());
+        });
+    }
+
+    private static void allOfByMutiTasks(ExecutorService executorService) {
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> {
+            processBizTime(1, "future1");
+            return 10;
+        }, executorService);
+        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> {
+            processBizTime(2, "future2");
+            return 20;
+        }, executorService);
+        CompletableFuture<Integer> future3 = CompletableFuture.supplyAsync(() -> {
+            processBizTime(3, "future3");
+            return 30;
+        }, executorService);
+        CompletableFuture<Void> completableFuture = CompletableFuture.allOf(future1, future2, future3);
+        completableFuture.thenRun(() -> {
+            System.out.println("all Tasks Completed, " + LocalDateTime.now());
+        });
     }
 
     private static void thenCombine(ExecutorService executorService) {
