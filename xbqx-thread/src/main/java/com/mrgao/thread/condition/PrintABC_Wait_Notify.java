@@ -11,7 +11,7 @@ public class PrintABC_Wait_Notify {
 
     private static volatile int state = 0;
 
-    private static final int cycleCount = 100;
+    private static final int cycleCount = 10;
 
 
     static class ThreadA extends Thread {
@@ -24,14 +24,17 @@ public class PrintABC_Wait_Notify {
                     while (state % 3 == 0) {
                         System.out.print("A");
                         state++;
-                        i++;
+                        i++; //TODO 循环次数，当且仅当 输出一次才执行加一操作
                         // 唤醒
                         lock.notifyAll();
                     }
-                    try {
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                    if (i < cycleCount) { // TODO 循环判断是否继续执行(如果不存在这一行代码，程序会一直运行)
+                        try {
+                            // 等待重新获取锁
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     System.out.print(">>");
                 }
@@ -51,11 +54,13 @@ public class PrintABC_Wait_Notify {
                         i++;
                         lock.notifyAll();
                     }
-                    try {
-                        // 等待重新获取锁
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                    if (i < cycleCount) {
+                        try {
+                            // 等待重新获取锁
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
@@ -74,10 +79,13 @@ public class PrintABC_Wait_Notify {
                         i++;
                         lock.notifyAll();
                     }
-                    try {
-                        lock.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                    if (i < cycleCount) {
+                        try {
+                            // 等待重新获取锁
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
@@ -85,8 +93,22 @@ public class PrintABC_Wait_Notify {
     }
 
     public static void main(String[] args) {
-        new ThreadA().start();
-        new ThreadB().start();
-        new ThreadC().start();
+        ThreadA threadA = new ThreadA();
+        ThreadB threadB = new ThreadB();
+        ThreadC threadC = new ThreadC();
+
+
+        threadA.start();
+        threadB.start();
+        threadC.start();
+
+//        while (true) {
+//            try {
+//                Thread.sleep(2 * 1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            System.out.println("state:" + state);
+//        }
     }
 }
