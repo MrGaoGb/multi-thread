@@ -20,20 +20,20 @@ public class PrintABC_Wait_Notify {
         public void run() {
             for (int i = 0; i < cycleCount; ) {
                 synchronized (lock) {
-                    if (state % 3 == 0) {
+                    // 多线程并发，不能用if，必须用循环测试等待条件，避免虚假唤醒
+                    while (state % 3 == 0) {
                         System.out.print("A");
                         state++;
                         i++;
                         // 唤醒
                         lock.notifyAll();
-                    } else {
-                        try {
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        System.out.print(">>");
                     }
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    System.out.print(">>");
                 }
             }
         }
@@ -45,18 +45,17 @@ public class PrintABC_Wait_Notify {
         public void run() {
             for (int i = 0; i < cycleCount; ) {
                 synchronized (lock) {
-                    if (state % 3 == 1) {
+                    while (state % 3 == 1) {
                         System.out.print("B");
                         state++;
                         i++;
                         lock.notifyAll();
-                    } else {
-                        try {
-                            // 等待重新获取锁
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                    }
+                    try {
+                        // 等待重新获取锁
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -69,19 +68,17 @@ public class PrintABC_Wait_Notify {
         public void run() {
             for (int i = 0; i < cycleCount; ) {
                 synchronized (lock) {
-                    if (state % 3 == 2) {
+                    while (state % 3 == 2) {
                         System.out.println("C");
                         state++;
                         i++;
                         lock.notifyAll();
-                    } else {
-                        try {
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
                     }
-
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
