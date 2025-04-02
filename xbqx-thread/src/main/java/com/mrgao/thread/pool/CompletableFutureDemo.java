@@ -1,10 +1,7 @@
 package com.mrgao.thread.pool;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 /**
@@ -23,7 +20,7 @@ public class CompletableFutureDemo {
         try {
             // 1、创建异步任务
             // 1.1 不带返回值
-            //runAsync(executorService);
+            runAsync(executorService);
             // 1.2 带返回值
             //supplyAsync(executorService);
 
@@ -52,7 +49,7 @@ public class CompletableFutureDemo {
             // 异常处理
             //exceptionally(executorService);
             //handler(executorService);
-            whenComplete(executorService);
+//            whenComplete(executorService);
         } finally {
             executorService.shutdown();
         }
@@ -320,19 +317,21 @@ public class CompletableFutureDemo {
      */
     private static void runAsync(ExecutorService executorService) throws InterruptedException {
         // 使用自定义线程池 executorService
-        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
-            processBizTime(5, "runAsync-自定义线程池策略");
-        }, executorService);
+//        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
+//            processBizTime(5, "runAsync-自定义线程池策略");
+//        }, executorService);
 
         // 使用默认线程池(由CPU核数决定的线程池，若CPU核数小于或等于2，那么底层采用的线程池为ThreadPerTaskExecutor,即就是每次new Thread().start)
         // 如果CPU核数大于2，那么底层采用的线程池为ForkJoinPool，ForkJoinPool默认的线程数是CPU核数-1
-        //CountDownLatch countDownLatch = new CountDownLatch(1);
-        //CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
-        //    processBizTime(2, "runAsync-默认线程池策略");
-        //    countDownLatch.countDown();// 计数器减1
-        //});
+        // 指定系统配置参数
+//        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "16");
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
+            processBizTime(2, "runAsync-默认线程池策略");
+            countDownLatch.countDown();// 计数器减1
+        });
         //// --等待线程执行完毕
-        //countDownLatch.await();
+        countDownLatch.await();
     }
 
     /**
