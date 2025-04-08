@@ -21,7 +21,7 @@ public class TryFinallyDemo {
 
             int c = b / 2;
 
-            // 终止JVM运行
+            // 终止JVM运行(如果使用System.exit(0);则finally中不会被执行)
             //System.exit(0);
 
         } catch (Exception ex) {
