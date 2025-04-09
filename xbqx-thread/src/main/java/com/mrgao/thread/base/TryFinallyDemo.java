@@ -24,6 +24,8 @@ public class TryFinallyDemo {
             // 终止JVM运行(如果使用System.exit(0);则finally中不会被执行)
             //System.exit(0);
 
+            //throw new Error("执行异常错误了");
+
         } catch (Exception ex) {
             logger.info("catch....!");
         } finally {
