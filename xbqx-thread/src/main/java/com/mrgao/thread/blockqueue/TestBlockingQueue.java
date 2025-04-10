@@ -1,17 +1,14 @@
-package com.mrgao.thread.blockqueue.arrqueue;
+package com.mrgao.thread.blockqueue;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * @author Mr.Gao
  * @apiNote:阻塞队列之数组队列
  * @date 2025/4/9 11:41
  */
-public class TestArrayBlockQueue {
+public class TestBlockingQueue {
     /**
      * 循环次数
      */
@@ -21,7 +18,12 @@ public class TestArrayBlockQueue {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         try {
             // 创建一个容量为3的数组阻塞队列
-            BlockingQueue<String> queue = new ArrayBlockingQueue<>(3);
+            //BlockingQueue<String> queue = new ArrayBlockingQueue<>(3);
+
+            // 创建一个基于链表的阻塞队列 (默认大小为Integer.MAX_VALUE)
+            //BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+            // 创建一个基于链表的阻塞队列 (可以指定容量大小)
+            BlockingQueue<String> queue = new LinkedBlockingQueue<>(3);
 
             // 创建一个生产者
             Producer producer = new Producer(queue, CYCLE_COUNT);
