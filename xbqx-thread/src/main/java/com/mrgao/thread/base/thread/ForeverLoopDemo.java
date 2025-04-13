@@ -7,7 +7,7 @@ package com.mrgao.thread.base.thread;
  */
 public class ForeverLoopDemo {
 
-    static boolean flag = false;
+   /*volatile */static boolean flag = false;
 
     public static void main(String[] args) {
 
