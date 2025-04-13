@@ -38,7 +38,7 @@ public class ReenMyLock {
             }
         } else if (ownerThread == Thread.currentThread()) {
             // 持有锁的线程一致，则加锁次数++
-            state.incrementAndGet();
+            System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，则加锁次数++" + state.incrementAndGet());
             return;
         }
 
@@ -88,7 +88,7 @@ public class ReenMyLock {
 
         if (state.get() > 1) {
             // 当前线程持有锁的次数减1
-            state.decrementAndGet();
+            System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，则加锁次数--" + state.decrementAndGet());
             return;
         }
 
@@ -99,7 +99,8 @@ public class ReenMyLock {
         System.out.println(Thread.currentThread().getName() + ", 解锁成功!");
         Node headNode = head.get();
         Node nextNode = headNode.next;
-//        ownerThread = null;
+        // TODO 释放锁之前需要释放ownerThread
+        ownerThread = null;
         state.set(0);// 将锁释放
         if (nextNode != null) {
             System.out.println(Thread.currentThread().getName() + ", 唤醒下一个节点：" + nextNode.thread.getName());

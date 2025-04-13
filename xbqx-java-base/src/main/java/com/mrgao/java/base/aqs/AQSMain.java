@@ -14,13 +14,15 @@ public class AQSMain {
         // 创建锁对象 使用ReentrantLock
 //        Lock lock = new ReentrantLock();
         // 创建锁对象 使用自定义Lock
-        MyLock lock = new MyLock();
+//        MyLock lock = new MyLock();
+        ReenMyLock lock = new ReenMyLock();// 支持可重入锁
 
 
         CountDownLatch countDownLatch = new CountDownLatch(100);
 
         for (int i = 0; i < 100; i++) {
             new Thread(() -> {
+                lock.lock();
                 lock.lock();
                 try {
                     for (int j = 0; j < 10; j++) {
@@ -29,6 +31,8 @@ public class AQSMain {
                     }
                     countDownLatch.countDown();
                 } finally {
+                    lock.unlock();
+                    lock.unlock();
                     lock.unlock();
                 }
             }, "thread-" + i).start();
