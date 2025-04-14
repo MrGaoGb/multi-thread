@@ -29,20 +29,33 @@ public class ReenMyLock {
      * 加锁
      */
     public void lock() {
-        if (state.get() == 0) {
-            if (state.compareAndSet(0, 1)) {
-                // 表示当前线程获取锁成功，当前线程指向ownerThread
-                System.out.println(Thread.currentThread().getName() + " 直接获取锁成功!");
-                this.ownerThread = Thread.currentThread();
-                return;
-            }
-        } else {
-            if (this.ownerThread == Thread.currentThread()) {
-                // 持有锁的线程一致，则加锁次数++
-                System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，可重入次数：" + state.incrementAndGet());
-                return;
-            }
+        //if (state.get() == 0) {
+        //    if (state.compareAndSet(0, 1)) {
+        //        // 表示当前线程获取锁成功，当前线程指向ownerThread
+        //        System.out.println(Thread.currentThread().getName() + " 直接获取锁成功!");
+        //        this.ownerThread = Thread.currentThread();
+        //        return;
+        //    }
+        //} else {
+        //    if (this.ownerThread == Thread.currentThread()) {
+        //        // 持有锁的线程一致，则加锁次数++
+        //        System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，可重入次数：" + state.incrementAndGet());
+        //        return;
+        //    }
+        //}
+
+        if (state.compareAndSet(0, 1)) {
+            // 表示当前线程获取锁成功，当前线程指向ownerThread
+            System.out.println(Thread.currentThread().getName() + " 直接获取锁成功!");
+            this.ownerThread = Thread.currentThread();
+            return;
+        } else if (this.ownerThread == Thread.currentThread()) {
+            // 获取锁失败, 如果当前线程与持有锁的线程一致，则锁的可重入次数+1
+            // 持有锁的线程一致，则加锁次数++
+            System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，可重入次数：" + state.incrementAndGet());
+            return;
         }
+
 
         // 表示锁竞争失败，将当前线程加入队列的尾部
         Node currentNode = new Node();
