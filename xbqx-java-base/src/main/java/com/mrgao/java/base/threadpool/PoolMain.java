@@ -1,5 +1,10 @@
 package com.mrgao.java.base.threadpool;
 
+import com.mrgao.java.base.threadpool.reject.NoThingTodoRejectHandler;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Mr.Gao
  * @apiNote: 实现线程池功能
@@ -9,7 +14,14 @@ public class PoolMain {
 
     public static void main(String[] args) {
         // 创建线程池对象(自定义实现)
-        MyThreadPool pool = new MyThreadPool();
+        MyThreadPool pool = new MyThreadPool(
+                3,
+                5,
+                10,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(3),
+                new NoThingTodoRejectHandler()
+        );
         try {
             // 提交任务
             for (int i = 0; i < 10; i++) {
