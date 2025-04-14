@@ -14,7 +14,7 @@ public class ReenMyLock {
     AtomicInteger state = new AtomicInteger(0);
 
     // 定义一个当前线程ownerThread
-    Thread ownerThread;
+    Thread ownerThread = null;
 
     /**
      * 队列的头结点
@@ -33,13 +33,15 @@ public class ReenMyLock {
             if (state.compareAndSet(0, 1)) {
                 // 表示当前线程获取锁成功，当前线程指向ownerThread
                 System.out.println(Thread.currentThread().getName() + " 直接获取锁成功!");
-                ownerThread = Thread.currentThread();
+                this.ownerThread = Thread.currentThread();
                 return;
             }
-        } else if (ownerThread == Thread.currentThread()) {
-            // 持有锁的线程一致，则加锁次数++
-            System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，则加锁次数++" + state.incrementAndGet());
-            return;
+        } else {
+            if (this.ownerThread == Thread.currentThread()) {
+                // 持有锁的线程一致，则加锁次数++
+                System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，可重入次数：" + state.incrementAndGet());
+                return;
+            }
         }
 
         // 表示锁竞争失败，将当前线程加入队列的尾部
@@ -61,8 +63,8 @@ public class ReenMyLock {
             // Condition
             // Head ---> A ---> B ---> C ---> D ---> null
             if (currentNode.pre == head.get() && state.compareAndSet(0, 1)) {
-                ownerThread = Thread.currentThread();
-                System.out.println(Thread.currentThread().getName() + ", head节点的另一个节点被唤醒了...");
+                this.ownerThread = Thread.currentThread();
+                //System.out.println(Thread.currentThread().getName() + ", head节点的另一个节点被唤醒了...");
                 head.set(currentNode);
 
                 // 断链操作
@@ -81,29 +83,32 @@ public class ReenMyLock {
      * 解锁
      */
     public void unlock() {
-        if (Thread.currentThread() != ownerThread) {
+        if (this.ownerThread == null) {
+            System.out.println(Thread.currentThread().getName() + "中的 ownerThread已经为空,不再做任何释放!");
+            return;
+        }
+        if (Thread.currentThread() != this.ownerThread) {
             // 避免不是当前锁的拥有者解锁的问题
+            System.err.println("当前拥有锁的线程:" + ownerThread.getName() + ", 当前需要释放锁的线程:" + Thread.currentThread().getName() + ", 导致解锁失败!");
             throw new IllegalMonitorStateException("当前线程不是锁的拥有者，不能解锁");
         }
 
         if (state.get() > 1) {
             // 当前线程持有锁的次数减1
-            System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，则加锁次数--" + state.decrementAndGet());
+            System.out.println(Thread.currentThread().getName() + " 持有锁的线程一致，则可重入锁的剩余次数: " + state.decrementAndGet());
             return;
         }
 
         if (state.get() <= 0) {
-            throw new IllegalMonitorStateException("当前线程已经解锁，不能再次解锁");
+            throw new IllegalMonitorStateException("当前锁的可重入次数小于0,当前可重入次数为：" + state.get());
         }
 
-        System.out.println(Thread.currentThread().getName() + ", 解锁成功!");
         Node headNode = head.get();
         Node nextNode = headNode.next;
-        // TODO 释放锁之前需要释放ownerThread
-        ownerThread = null;
+        this.ownerThread = null;
         state.set(0);// 将锁释放
         if (nextNode != null) {
-            System.out.println(Thread.currentThread().getName() + ", 唤醒下一个节点：" + nextNode.thread.getName());
+            System.out.println(Thread.currentThread().getName() + ", 唤醒下一个节点: " + nextNode.thread.getName());
             LockSupport.unpark(nextNode.thread);
         }
 

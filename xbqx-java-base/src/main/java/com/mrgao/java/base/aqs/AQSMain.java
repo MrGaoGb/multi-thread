@@ -9,6 +9,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public class AQSMain {
 
+
+    static int countDownNum = 10;
+
     public static void main(String[] args) throws InterruptedException {
         int[] count = new int[]{0};
         // 创建锁对象 使用ReentrantLock
@@ -17,24 +20,22 @@ public class AQSMain {
 //        MyLock lock = new MyLock();
         ReenMyLock lock = new ReenMyLock();// 支持可重入锁
 
+        CountDownLatch countDownLatch = new CountDownLatch(countDownNum);
 
-        CountDownLatch countDownLatch = new CountDownLatch(100);
-
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < countDownNum; i++) {
             new Thread(() -> {
-                lock.lock();
-                lock.lock();
-                try {
-                    for (int j = 0; j < 10; j++) {
-                        //sleep(2);
-                        count[0]++;
-                    }
-                    countDownLatch.countDown();
-                } finally {
-                    lock.unlock();
-                    lock.unlock();
+                // 加锁
+                for (int j = 0; j < 10; j++) {
+                    lock.lock();
+                    sleep(2);
+                    count[0]++;
+                }
+
+                // 解锁
+                for (int j = 0; j < 10; j++) {
                     lock.unlock();
                 }
+                countDownLatch.countDown();
             }, "thread-" + i).start();
         }
 
