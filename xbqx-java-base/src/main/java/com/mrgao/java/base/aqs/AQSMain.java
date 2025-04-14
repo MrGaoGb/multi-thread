@@ -27,7 +27,7 @@ public class AQSMain {
                 // 加锁
                 for (int j = 0; j < 10; j++) {
                     lock.lock();
-                    sleep(2);
+                    //sleep(2);
                     count[0]++;
                 }
 
