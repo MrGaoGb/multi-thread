@@ -1,6 +1,9 @@
 package com.mrgao.java.base.threadpool;
 
+import cn.hutool.core.collection.CollUtil;
 import com.mrgao.java.base.threadpool.reject.ThrowExceptionRejectedHandler;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +11,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * @author Mr.Gao
@@ -94,16 +98,32 @@ public class MyThreadPool {
      */
     List<Thread> extraThreads = new ArrayList<>();
 
-//    Thread printThread = new Thread(() -> {
-//        while (true) {
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            System.out.println("打印线程信息，核心线程:" + coreThreads.size() + ", 非核心线程数:" + extraThreads.size() + ", 队列中任务数:" + queue.size());
-//        }
-//    });
+    /**
+     * 打印线程池相关参数信息
+     */
+    Thread printThread = new Thread(() -> {
+        while (true) {
+            try {
+                // 每秒打印一次
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            // 移除非核心线程数
+            List<ExtraThread> waitThreadList = extraThreads.stream().filter(thread -> thread instanceof ExtraThread)
+                    .map(thread -> (ExtraThread) thread)
+                    .filter(extraThread -> !extraThread.isFlag())
+                    .collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(waitThreadList)) {
+                waitThreadList.forEach(extraThread -> {
+                    boolean remove = extraThreads.remove(extraThread);
+                    System.out.println("移除线程:" + extraThread.getName() + "，移除" + (remove ? "成功" : "失败"));
+                });
+            }
+            System.out.println("打印线程信息，核心线程:" + coreThreads.size() + ", 非核心线程数:" + extraThreads.size() + ", 队列中任务数:" + queue.size() + ", 非核心线程:" + waitThreadList.size());
+        }
+    });
 
     @Override
     public String toString() {
@@ -113,6 +133,8 @@ public class MyThreadPool {
 
     {
         //thread.start();
+        // 启动打印线程任务
+        printThread.start();
         System.out.println("线程池启动了...");
     }
 
@@ -187,7 +209,12 @@ public class MyThreadPool {
     /**
      * 非核心线程处理逻辑
      */
+    @Getter
+    @Setter
     class ExtraThread extends Thread {
+
+        private boolean flag = true;
+
         @Override
         public void run() {
             while (true) {
@@ -200,6 +227,8 @@ public class MyThreadPool {
                     throw new RuntimeException(e);
                 }
             }
+            // 将标志位设置为false，表示线程已经退出了
+            flag = false;
             System.out.println("非核心线程:" + Thread.currentThread().getName() + " 退出了...");
         }
     }
