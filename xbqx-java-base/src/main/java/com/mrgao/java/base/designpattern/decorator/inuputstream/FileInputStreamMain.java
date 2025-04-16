@@ -12,7 +12,7 @@ import java.io.*;
 public class FileInputStreamMain {
 
     /**
-     * TODO(明天实现) 下一个问题：你可以写一个装饰器，记录当前inputStream调用过多少次read方法吗?
+     * (明天实现) 下一个问题：你可以写一个装饰器，记录当前inputStream调用过多少次read方法吗?
      *
      * @param args
      */
@@ -24,22 +24,29 @@ public class FileInputStreamMain {
         System.out.println("开始读取文件...");
         try (
                 // 从缓冲区读取
-                InputStream bfis = new BufferedFileInputStream(new FileInputStream(new File("D:\\技术文档\\JAVA.pdf")));
-//                FileInputStream fis = new FileInputStream(new File("D:\\技术文档\\JAVA.pdf"))
+                InputStream bfis = new BufferedFileInputStream(new FileInputStream(new File("D:\\技术文档\\JAVA.pdf"))); // 从缓冲区读取
+                CountExecReadInputStream bfisReadCount = new CountExecReadInputStream(new BufferedFileInputStream(new FileInputStream(new File("D:\\技术文档\\JAVA.pdf"))));// 记录当前inputStream调用过多少次read方法
+//                FileInputStream fis = new FileInputStream(new File("D:\\技术文档\\JAVA.pdf")) ;// 从单个字节读取，每次都需要进行IO操作
         ) {
             while (true) {
 //                int read = fis.read();
                 int bufferRead = bfis.read();
+                int bufferReadCount = bfisReadCount.read();
 
 //                if (read != bufferRead) {
 //                    throw new RuntimeException("文件数据读取错误!");
 //                }
+
+                if (bufferReadCount != bufferRead) {
+                    throw new RuntimeException("文件数据读取错误!");
+                }
 
                 if (bufferRead == -1) {
                     // -1表示文件读取完毕
                     break;
                 }
             }
+            System.out.println("文件总计读取read方法:" + bfisReadCount.getRc());
         } catch (FileNotFoundException e) {
             // 文件找不到异常
             throw new RuntimeException(e);
