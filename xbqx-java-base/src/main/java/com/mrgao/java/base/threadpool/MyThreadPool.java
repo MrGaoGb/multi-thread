@@ -1,6 +1,7 @@
 package com.mrgao.java.base.threadpool;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.mrgao.java.base.threadpool.reject.ThrowExceptionRejectedHandler;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -23,12 +25,12 @@ public class MyThreadPool {
     /**
      * 阻塞队列
      */
-    BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(5);
+    private BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(5);
 
     /**
      * 定义一个锁对象
      */
-    ReentrantLock lock = new ReentrantLock();
+    private ReentrantLock lock = new ReentrantLock();
 
     /**
      * 核心线程数
@@ -46,6 +48,9 @@ public class MyThreadPool {
      * 时间单位
      */
     private volatile TimeUnit timeUnit = TimeUnit.SECONDS;
+
+    private volatile AtomicInteger coreThreadCount = new AtomicInteger(0);
+    private volatile AtomicInteger extraThreadCount = new AtomicInteger(0);
 
     /**
      * 拒绝策略 默认抛出异常
@@ -155,12 +160,13 @@ public class MyThreadPool {
         try {
             if (coreThreads.size() < corePoolSize) {
                 // 创建线程 添加至核心线程列表中
-                Thread coreThread = new CoreThread();
+                Thread coreThread = new CoreThread(runnable);
                 coreThreads.add(coreThread);
-                coreThread.setName("core");
+                coreThread.setName("core-" + coreThreadCount.getAndIncrement());
                 System.out.println("创建核心线程处理任务" + coreThread.getName());
                 // 启动线程
                 coreThread.start();
+                return;
             }
 
             // 添加至阻塞队列中
@@ -172,15 +178,16 @@ public class MyThreadPool {
             //
             if (extraThreads.size() < (maxPoolSize - corePoolSize)) {
                 System.out.println("队列已满，将任务添加至非核心线程列表中");
-                Thread extraThread = new ExtraThread();
+                Thread extraThread = new ExtraThread(runnable);
                 extraThreads.add(extraThread);
-                extraThread.setName("extra");
+                extraThread.setName("extra-" + extraThreadCount.getAndIncrement());
                 // 启动非核心线程
                 extraThread.start();
+                return;
             }
 
             if (!queue.offer(runnable)) {
-                System.out.println("队列已满 && 非核心线程数也满了 则表示是真的满了,不能再添加了...!");
+                System.err.println("队列已满 && 非核心线程数也满了 则表示是真的满了,不能再添加了...!");
                 rejectHandler.reject(runnable, this);
             }
         } finally {
@@ -192,12 +199,24 @@ public class MyThreadPool {
      * 核心线程处理逻辑
      */
     class CoreThread extends Thread {
+
+        private Runnable task;
+
+        CoreThread(Runnable task) {
+            this.task = task;
+        }
+
         @Override
         public void run() {
+            Runnable runTask = null;
             while (true) {
                 try {
-                    Runnable take = queue.take();
-                    take.run();
+                    // 任务不为null时，则优先执行传入的task
+                    runTask = ObjectUtil.isNotNull(task) ? task : queue.take();
+                    runTask.run();
+
+                    // 当前任务执行完毕后，将当前任务置为null，方便获取下一个任务
+                    task = null;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -215,14 +234,26 @@ public class MyThreadPool {
 
         private boolean flag = true;
 
+        private Runnable task;
+
+        ExtraThread(Runnable task) {
+            this.task = task;
+        }
+
         @Override
         public void run() {
+            Runnable runTask = null;
             while (true) {
                 try {
                     // 如果队列为空时，再存活10s之后，线程退出
-                    Runnable take = queue.poll(keepAliveTime, timeUnit);
-                    if (take == null) break;
-                    take.run();
+                    runTask = ObjectUtil.isNotNull(task) ? task : queue.poll(keepAliveTime, timeUnit);
+                    if (runTask == null) break;
+
+                    // 执行目标任务
+                    runTask.run();
+
+                    // 当前任务执行完毕后，将当前任务置为null，方便获取下一个任务
+                    task = null;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

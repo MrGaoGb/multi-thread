@@ -20,7 +20,7 @@ public class PoolMain {
                 10,
                 TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(3),
-                new NoThingTodoRejectHandler()
+                new NoThingTodoRejectHandler() // 拒绝策略 默认什么都不做
         );
         try {
             // 提交任务
@@ -29,7 +29,7 @@ public class PoolMain {
                 pool.execute(() -> {
                     try {
                         // 延时1s
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
