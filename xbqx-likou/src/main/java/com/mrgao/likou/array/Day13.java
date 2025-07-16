@@ -10,9 +10,10 @@ import java.util.Arrays;
 public class Day13 {
 
     public static void main(String[] args) {
-        //int[] nums = {1, 2, 3, 4};
-        int[] nums = {-1, 1, 0, -3, 3};
-        int[] ints = productExceptSelf(nums);
+        int[] nums = {1, 2, 3, 4};
+        //int[] nums = {-1, 1, 0, -3, 3};
+        //int[] ints = productExceptSelf(nums);
+        int[] ints = productExceptSelfV1(nums);
         System.out.println(Arrays.toString(ints));
     }
 
@@ -40,6 +41,26 @@ public class Day13 {
             temp[i] = count;
             count = 1;// 重置count
         }
+        return temp;
+    }
+
+    private static int[] productExceptSelfV1(int[] nums) {
+        int[] temp = new int[nums.length];
+
+        // 构建R数组
+        int[] R = new int[nums.length];
+        int[] L = new int[nums.length];
+
+        L[0] = 1;
+        for (int i = 1; i < nums.length; i++) {
+            L[i] = nums[i] * L[i - 1];
+        }
+        System.out.println(Arrays.toString(L));
+        R[nums.length - 1] = 1;
+        for (int i = nums.length - 2; i >= 0; i--) {
+            R[i] = nums[i] * R[i + 1];
+        }
+        System.out.println(Arrays.toString(R));
         return temp;
     }
 }
